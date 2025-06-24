@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	common.LoadEnv()
 	service := common.GetServiceContext()
 	r := gin.Default()
 	routes.InitRoutes(r, service)

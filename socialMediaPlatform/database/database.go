@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"os"
 	"socialmedia/models"
 
@@ -9,7 +10,8 @@ import (
 )
 
 func ConnectDB() (*gorm.DB, error) {
-	dsn := os.Getenv("DSN")
+	dsn := os.Getenv("DSN_SOCIAL")
+	fmt.Println("Database dsn=====",dsn)
 	// Open a new database connection
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
