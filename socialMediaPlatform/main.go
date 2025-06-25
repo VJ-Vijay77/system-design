@@ -1,16 +1,28 @@
 package main
 
 import (
-	"socialmedia/common"
-	"socialmedia/routes"
+	"socialMediaPlatform/common"
+	"socialMediaPlatform/controllers"
+	"socialMediaPlatform/database"
+	"socialMediaPlatform/di"
+	"socialMediaPlatform/routes"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	common.LoadEnv()
-	service := common.GetServiceContext()
+	db := database.ConnectDB()
+	common := common.Service{}
+	controllers := &controllers.Service{
+		Db:     db,
+		Common: &common,
+	}
+	c := &di.Config{
+		Config: controllers,
+	}
+
 	r := gin.Default()
-	routes.InitRoutes(r, service)
+	routes.InitRoutes(r, c)
 	r.Run()
 }

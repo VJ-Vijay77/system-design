@@ -1,18 +1,15 @@
 package routes
 
 import (
-	"socialmedia/controllers"
-	"socialmedia/models"
+	"socialMediaPlatform/di"
 
 	"github.com/gin-gonic/gin"
 )
 
+func InitRoutes(r *gin.Engine, c *di.Config) {
 
-func InitRoutes(r *gin.Engine, s *models.Service) {
-	h := &controllers.Service{Config: s}
-
-	r.POST("/signup", h.SignUp)
-	r.POST("/login", h.Login)
+	r.POST("/signup", c.Config.SignUp)
+	r.POST("/login", c.Config.Login)
 	r.GET("/user/:id")
 	r.GET("/feed")
 	r.GET("/like/:id")

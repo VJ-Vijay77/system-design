@@ -2,11 +2,14 @@ package common
 
 import (
 	"fmt"
-	"socialmedia/database"
-	"socialmedia/models"
 
+	"github.com/ansel1/merry"
+	"github.com/jackc/pgconn"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 )
+
+type Service struct{}
 
 func LoadEnv() {
 	err := godotenv.Load("/home/vijay/go/src/SystemDesigning/.env")
@@ -15,10 +18,25 @@ func LoadEnv() {
 	}
 }
 
-func GetServiceContext() *models.Service {
-	db, err := database.ConnectDB()
+func (s *Service) HashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		panic(err)
+		return "", merry.Append(err, "unalbe to get the hash")
 	}
-	return &models.Service{Db: db}
+	return string(hash), nil
+}
+
+func (s *Service) GetPasswordFromHash(hash, password string) error {
+	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
+		return merry.New("wrong password")
+	}
+	return nil
+}
+
+func (s *Service) IsUniqueConstraintError(err error) bool {
+	// PostgreSQL
+	if pgErr, ok := err.(*pgconn.PgError); ok {
+		return pgErr.Code == "23505"
+	}
+	return false
 }
