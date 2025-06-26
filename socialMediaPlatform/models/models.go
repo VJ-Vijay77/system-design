@@ -17,6 +17,11 @@ type UserSignup struct {
 	Email    string `json:"email" binding:"required"`
 }
 
+type UserLogin struct {
+	UserID     string `json:"userid" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 type Post struct {
 	ID        uint `gorm:"primaryKey"`
 	CreatedAt time.Time

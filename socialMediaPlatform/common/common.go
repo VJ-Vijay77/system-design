@@ -2,9 +2,11 @@ package common
 
 import (
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/ansel1/merry"
-	"github.com/jackc/pgconn"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -26,17 +28,19 @@ func (s *Service) HashPassword(password string) (string, error) {
 	return string(hash), nil
 }
 
-func (s *Service) GetPasswordFromHash(hash, password string) error {
+func (s *Service) GetPasswordFromHash(hash, password string) bool {
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
-		return merry.New("wrong password")
+		return false
 	}
-	return nil
+	return true
 }
 
-func (s *Service) IsUniqueConstraintError(err error) bool {
-	// PostgreSQL
-	if pgErr, ok := err.(*pgconn.PgError); ok {
-		return pgErr.Code == "23505"
+func (s *Service) GenerateJwtToken(userid uint) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": userid,
+		"exp":     time.Now().Add(1 * time.Hour).Unix(),
 	}
-	return false
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
